@@ -1,7 +1,9 @@
-// width: 1900 top, 1880 bottom
-// cylinder: 70
-// angle: 20deg
+// width: 190 top, 188 bottom
+// cylinder: 7
+// angle: 10deg
+// mounting angle: 70% towards center, 45% back
 
+// handle
 guide_length = 25;
 handle_guide_width = 5;
 guide_height = 10;
@@ -31,4 +33,19 @@ module left_handle() {
     }
 }
 
+// mount
+first_mount_length = 50;
+mount_width = cylinder_diameter + cylinder_width;
+first_mount_angle = 30;
+first_mount_height = cos(first_mount_angle) * first_mount_length;
+
+module left_first_mount() {
+    translation_width = sin(first_mount_angle) * first_mount_length;
+    translate([translation_width,0,0])
+    rotate(a=-first_mount_angle,v=[0,1,0])
+    cube([guide_height, mount_width, first_mount_length]);
+}
+
+translate([0,0,first_mount_height])
 left_handle();
+left_first_mount();
