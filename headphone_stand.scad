@@ -2,67 +2,33 @@
 // cylinder: 70
 // angle: 20deg
 
-top_width = 100;
-bottom_width = 80;
-height = 60;
-cylinder_diameter = 70;
-cylinder_radius = cylinder_diameter / 2;
-offset = (top_width - bottom_width) /2;
+guide_length = 25;
+handle_guide_width = 5;
+guide_height = 10;
+cylinder_diameter = 7;
+cylinder_width = 1;
 
+module left_handle() {
+    difference() {
+        union() {
+            cube([guide_height,cylinder_diameter + cylinder_width,handle_guide_width + 10]);
+            translate([0,cylinder_diameter + cylinder_width,0])
+            rotate(a=-10,v=[0,0,1])
+            union() {
+                cube([guide_height,6,handle_guide_width + 10]);
+                translate([-1,2,0])
+                cube([guide_height+1,4,guide_length]);
+            }
+        }
 
-module base() {
-    hold_depth=cylinder_diameter + 10;
-    linear_extrude(height=hold_depth)
-    polygon(points = [[0,0],[top_width,0],[top_width-offset,height],[offset,height]]);
+        translate([-1,4,12])
+        rotate(a=90,v=[0,1,0])
+        union() {
+            cylinder(h=15,r1=3.5,r2=3.5, $fn=100);
+            translate([-handle_guide_width - 0.5,-3.5,0])
+            cube([handle_guide_width,7,15]);
+        }
+    }
 }
 
-module base2() {
-    hold_depth=cylinder_diameter + 10;
-    linear_extrude(height=hold_depth)
-    polygon(points = [[0,0],[top_width,0],[top_width,height],[offset,height]]);
-}
-
-module cylinder1() {
-    rotate(a=-atan(offset/height),v=[0,0,1])
-    translate([0,-20,cylinder_radius + 5])
-    rotate(a=-90,v=[1,0,0])
-    cylinder(h = height * 1.5, r1 = cylinder_radius, r2 = cylinder_radius);
-}
-
-module cylinder2() {
-    translate([top_width,0,0])
-    rotate(a=atan(offset/height),v=[0,0,1])
-    translate([0,-20,cylinder_radius + 5])
-    rotate(a=-90,v=[1,0,0])
-    cylinder(h = height * 1.5, r1 = cylinder_radius, r2 = cylinder_radius);
-}
-
-/*
-rotate(a=90,v=[1,0,0])
-difference() {
-    base();
-    cylinder1();
-    cylinder2();
-}
-*/
-
-/*
-rotate(a=90,v=[1,0,0])
-difference() {
-    base2();
-    cylinder1();
-}
-*/
-
-difference() {
-union() {
-    cube([10,8,8]);
-    translate([0,8,0])
-    rotate(a=-20,v=[0,0,1])
-    cube([10,6,8]);
-}
-
-translate([-1,4,8])
-rotate(a=90,v=[0,1,0])
-cylinder(h=15,r1=3.5,r2=3.5, $fn=100);
-}
+left_handle();
