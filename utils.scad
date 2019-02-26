@@ -1,6 +1,31 @@
 // Utilities
 use <libraries/SnapLib/SnapLib.0.36.scad>
 
+// Misc
+
+/**
+ * smooth: will create convex hull of shape over specified intervals. 
+ * ex:
+ * smooth() {
+ *   shape1();
+ *   section_to_smooth_1();
+ *   section_to_smooth_2();
+ * }
+ */
+module smooth() {
+    children(0);
+    // step needed in case $children < 2  
+    for (i= [1:1:$children-1]) {
+        hull() {
+            intersection() {
+                children(0);
+                children(i);
+            }
+        }
+    }
+}
+
+
 // Snap Joints
 
 /**
