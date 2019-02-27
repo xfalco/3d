@@ -48,18 +48,53 @@ module left_first_mount() {
     cube([guide_height, mount_width, first_mount_length]);
 }
 
-module left() {
-    translate([0,0,first_mount_height])
-    left_handle();
-    left_first_mount();
+second_mount_length = 100;
+second_mount_angle = 70;
+second_mount_angle_2 = 20;
+second_mount_height = cos(second_mount_angle) * second_mount_length;
+second_mount_translation_width = cos(second_mount_angle_2) * second_mount_length;
+second_mount_offset = sin(second_mount_angle_2) * sin(second_mount_angle) * second_mount_length;
+
+module left_second_mount() {
+    translate([first_mount_translation_width + second_mount_translation_width,second_mount_offset,0])
+    rotate(a=second_mount_angle_2,v=[0,0,1])
+    rotate(a=-second_mount_angle,v=[0,1,0])
+    cube([guide_height, mount_width, second_mount_length]);
 }
 
+module left() {
+    rotate(a=10,v=[0,0,1])
+    union() {
+        translate([0,0,first_mount_height + second_mount_height])
+        left_handle();
+        translate([0,0,second_mount_height])
+        left_first_mount();
+        left_second_mount();
+    }
+}
+
+left();
+
 // base
-base_length = 200;
+base_length = 195;
 base_height = 10;
 
 module base() {
-    translate([first_mount_translation_width-15,0,0])
+    // "shadows"
+    rotate(a=10,v=[0,0,1])
+    translate([first_mount_translation_width + second_mount_translation_width,second_mount_offset,0])
+    rotate(a=second_mount_angle_2,v=[0,0,1])
+    rotate(a=-90,v=[0,1,0])
+    cube([guide_height - 5, mount_width, second_mount_length + 5]);
+    translate([0,base_length,0])
+    mirror([0,1,0])
+    rotate(a=10,v=[0,0,1])
+    translate([first_mount_translation_width + second_mount_translation_width,second_mount_offset,0])
+    rotate(a=second_mount_angle_2,v=[0,0,1])
+    rotate(a=-90,v=[0,1,0])
+    cube([guide_height - 5, mount_width, second_mount_length + 5]);
+    // original
+    translate([first_mount_translation_width+second_mount_translation_width-30,0,0])
     cube([30,base_length,base_height]);
 }
 
@@ -71,10 +106,15 @@ module everything() {
     left();
 }
 
+
 smooth() {
     everything();
-    translate([-5,-5,27])
+    translate([-5,-5,27+ second_mount_height])
     cube([20,20,20]);
-    translate([-5,base_length-15,27])
+    translate([-5,base_length-15,27+ second_mount_height])
     cube([20,20,20]);
+    translate([first_mount_translation_width-10,0,second_mount_height-10])
+    cube([30,30,20]);
+    translate([first_mount_translation_width-10,base_length-first_mount_translation_width-5,second_mount_height-10])
+    cube([30,30,20]);
 }
