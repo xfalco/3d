@@ -12,14 +12,26 @@ use <libraries/SnapLib/SnapLib.0.36.scad>
  *   section_to_smooth_2();
  * }
  */
-module smooth() {
+module smooth(r=0) {
     children(0);
     // step needed in case $children < 2  
     for (i= [1:1:$children-1]) {
-        hull() {
-            intersection() {
-                children(0);
-                children(i);
+        if(r > 0) {
+            minkowski() {
+                hull() {
+                    intersection() {
+                        children(0);
+                        children(i);
+                    }
+                }
+                sphere(r,center=true);
+            }
+        } else {
+            hull() {
+                intersection() {
+                    children(0);
+                    children(i);
+                }
             }
         }
     }
