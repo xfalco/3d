@@ -121,7 +121,7 @@ module left() {
 
 // base
 //base_length = 195;
-base_length = 60;
+base_length = 25;
 base_height = 10;
 
 module base() {
@@ -160,13 +160,16 @@ module smoothed() {
     }
 }
 
-smoothed();
-minkowski() {
-    intersection() {
-        smoothed();
-        area_to_smooth();
+mirror([0,1,0])
+union() {
+    smoothed();
+    minkowski() {
+        intersection() {
+            smoothed();
+            area_to_smooth();
+        }
+        sphere(2);
     }
-    sphere(2);
 }
 
 
