@@ -119,20 +119,20 @@ module left() {
     }
 }
 
-// base
-//base_length = 195;
-base_length = 25;
-base_height = 10;
+// joint
+//joint_length = 60;
+joint_length = 25;
+joint_height = 10;
 
-module base() {
+module joint() {
     // original
     translate([first_mount_translation_width+second_mount_translation_width-15,50,0])
-    cube([40,base_length,base_height]);
+    cube([40,joint_length,join_height]);
 }
 
 module everything() {
     left();
-    base();
+    joint();
     //translate([0,base_length,0])
     //mirror([0,1,0])
     //left();
@@ -160,8 +160,9 @@ module smoothed() {
     }
 }
 
-mirror([0,1,0])
-union() {
+//mirror([0,1,0])
+//smoothed();
+/*union() {
     smoothed();
     minkowski() {
         intersection() {
@@ -170,6 +171,29 @@ union() {
         }
         sphere(2);
     }
+}*/
+
+// base
+
+mid_space = (190 - 40 - 25) - (40 + 60);
+padding = 0.5;
+wall_width = 3;
+joint_depth = 24;
+
+base_length = wall_width + padding + 60 + padding + mid_space + padding + 25 + padding + wall_width;
+base_width = wall_width + padding + joint_height + padding + wall_width;
+base_height = joint_depth + padding + wall_width;
+
+module base() {
+    difference() {
+        cube([base_width, base_length, base_height]);
+        union() {
+            translate([wall_width,wall_width,wall_width])
+            cube([(padding + joint_height + padding),(padding + 60 + padding),(padding + joint_depth + 5)]);
+            translate([wall_width, (wall_width + padding + 60 + padding + mid_space),wall_width])
+            cube([(padding + joint_height + padding),(padding + 25 + padding),(padding + joint_depth + 5)]);
+        }
+    }
 }
 
-
+base();
