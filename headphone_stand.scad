@@ -127,7 +127,7 @@ joint_height = 10;
 module joint() {
     // original
     translate([first_mount_translation_width+second_mount_translation_width-15,50,0])
-    cube([40,joint_length,join_height]);
+    cube([40,joint_length,joint_height]);
 }
 
 module everything() {
@@ -173,27 +173,83 @@ module smoothed() {
     }
 }*/
 
-// base
+//color("red")
+//cube([first_mount_translation_width+second_mount_translation_width-15,70,90]);
+//cube([120,50,90]);
+
+smoothing_padding = 2;
+
+// base1
 
 mid_space = (190 - 40 - 25) - (40 + 60);
-padding = 0.5;
+padding = 0.25;
 wall_width = 3;
 joint_depth = 24;
 
-base_length = wall_width + padding + 60 + padding + mid_space + padding + 25 + padding + wall_width;
-base_width = wall_width + padding + joint_height + padding + wall_width;
+base_length = wall_width + padding + smoothing_padding + 60 + smoothing_padding + padding + mid_space + padding + smoothing_padding + 25 + smoothing_padding + padding + wall_width;
+base_width = wall_width + padding + smoothing_padding + joint_height + smoothing_padding + padding + wall_width;
 base_height = joint_depth + padding + wall_width;
 
-module base() {
+base_center_x = 90;
+base_center_height = base_height + (120 - (first_mount_translation_width+second_mount_translation_width-15));
+
+// layer
+
+layer_height = 10;
+num_layers = 4;
+final_layer_width = 60;
+final_layer_length = 50;
+
+// base2
+
+base_2_width = 150;
+base_2_length = 120;
+base_2_height = base_center_height - (num_layers - 1) * layer_height;
+base_2_hole_height = layer_height;
+base_2_hole_width = final_layer_width + (num_layers - 1) * layer_height + 2 * smoothing_padding + 2 * padding;
+base_2_hole_length = final_layer_length + (num_layers - 1) *layer_height + 2 * smoothing_padding + 2 * padding;
+
+module base1() {
+    translate([smoothing_padding,0,0])
     difference() {
         cube([base_width, base_length, base_height]);
         union() {
             translate([wall_width,wall_width,wall_width])
-            cube([(padding + joint_height + padding),(padding + 60 + padding),(padding + joint_depth + 5)]);
+            cube([(padding + smoothing_padding + joint_height + smoothing_padding + padding),(padding + smoothing_padding + 60 + smoothing_padding + padding),(padding + smoothing_padding + joint_depth + 5)]);
             translate([wall_width, (wall_width + padding + 60 + padding + mid_space),wall_width])
-            cube([(padding + joint_height + padding),(padding + 25 + padding),(padding + joint_depth + 5)]);
+            cube([(padding + smoothing_padding + joint_height + smoothing_padding + padding),(padding + smoothing_padding + 25 + smoothing_padding + padding),(padding + smoothing_padding + joint_depth + 5)]);
         }
     }
 }
 
-base();
+base_2_offset_x = base_width + smoothing_padding * 3 - 1;
+hole_start_x = smoothing_padding + wall_width + smoothing_padding + padding + base_center_x - base_2_hole_length / 2;
+hole_start_y = (base_2_width - base_2_hole_width) / 2 + smoothing_padding;
+hole_start_z = (base_2_height - base_2_hole_height);
+
+module base2() {
+    difference() {
+        translate([base_2_offset_x,smoothing_padding,0])
+        cube([base_2_length,base_2_width,base_2_height]);
+        translate([hole_start_x, hole_start_y, hole_start_z])
+        cube([base_2_hole_length, base_2_hole_width, base_2_hole_height + 5]);
+    }
+}
+
+module base() {
+    translate([0,((base_2_width - base_length - smoothing_padding) / 2 + smoothing_padding),0])
+    base1();
+    base2();
+}
+
+/*
+ minkowski() {
+    // intersection so we don't go under z-axis
+    intersection() {
+        base();
+        translate([0,0,smoothing_padding])
+        cube([200,200,100]);
+    }
+    sphere(smoothing_padding);
+}
+*/
