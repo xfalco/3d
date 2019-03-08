@@ -253,3 +253,79 @@ module base() {
     sphere(smoothing_padding);
 }
 */
+
+// stand
+// stand1
+/*
+feet_y_axis = 25;
+feet_x_axis = 15;
+feet_bottom_distance = 12;
+feet_top_distance = 33;
+*/
+// stand 3
+/*
+feet_y_axis = 23;
+feet_x_axis = 14;
+feet_bottom_distance = 10;
+feet_top_distance = 30;
+*/
+
+// stand 4
+/*
+feet_y_axis = 23;
+feet_x_axis = 14;
+feet_bottom_distance = 9;
+feet_top_distance = 30;
+*/
+
+// stand 5
+/*
+feet_y_axis = 23;
+feet_x_axis = 14;
+feet_bottom_distance = 9;
+feet_top_distance = 31;
+*/
+
+// stand 6
+/*
+feet_y_axis = 23;
+feet_x_axis = 14;
+feet_bottom_distance = 9;
+feet_top_distance = 32;
+*/
+
+// stand 7
+feet_y_axis = 23;
+feet_x_axis = 14;
+feet_bottom_distance = 9.5;
+feet_top_distance = 33;
+
+feet_depth = 4;
+
+feet_angle = asin(((feet_top_distance - feet_bottom_distance) / 2) / feet_y_axis);
+
+module foot() {
+    linear_extrude(height=(feet_depth + 1))
+    resize([feet_y_axis,feet_x_axis])
+    circle(r=1,$fn=100);
+}
+
+module feet() {
+    translate([0,-feet_bottom_distance,0])
+    rotate(a=-feet_angle,v=[0,0,1])
+    foot();
+    translate([0,feet_bottom_distance,0])
+    rotate(a=feet_angle,v=[0,0,1])
+    foot();
+}
+
+module stand() {
+    difference() {
+        translate([-final_layer_length / 2, -final_layer_width / 2, 0])
+        cube([final_layer_length, final_layer_width, layer_height/2]);
+        translate([0,0,layer_height /2 - feet_depth])
+        feet();
+    }
+}
+
+stand();
