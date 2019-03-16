@@ -160,6 +160,7 @@ module smoothed() {
     }
 }
 
+
 //mirror([0,1,0])
 //smoothed();
 /*union() {
@@ -182,7 +183,7 @@ smoothing_padding = 2;
 // base1
 
 mid_space = (190 - 40 - 25) - (40 + 60);
-padding = 0.25;
+padding = 0.15;
 wall_width = 3;
 joint_depth = 24;
 
@@ -242,8 +243,7 @@ module base() {
     base2();
 }
 
-/*
- minkowski() {
+minkowski() {
     // intersection so we don't go under z-axis
     intersection() {
         base();
@@ -252,7 +252,7 @@ module base() {
     }
     sphere(smoothing_padding);
 }
-*/
+
 
 // stand
 // stand1
@@ -304,6 +304,13 @@ feet_depth = 4;
 
 feet_angle = asin(((feet_top_distance - feet_bottom_distance) / 2) / feet_y_axis);
 
+back_stand_offset_height_extension = 3;
+
+back_stand_offset_from_back = 6.5 + 2 * smoothing_padding;
+back_stand_offset_height = 30 + back_stand_offset_height_extension - smoothing_padding;
+back_stand_width = 15 - 2 * smoothing_padding;
+back_stand_length = 5 - 2 * smoothing_padding;
+
 module foot() {
     linear_extrude(height=(feet_depth + 1))
     resize([feet_y_axis,feet_x_axis])
@@ -319,13 +326,111 @@ module feet() {
     foot();
 }
 
-module stand() {
+module layer_with_stand() {
+    translate([smoothing_padding, smoothing_padding, 0])
+    cube([final_layer_length - 2 * smoothing_padding, final_layer_width - 2 * smoothing_padding, layer_height - smoothing_padding]);
+    translate([back_stand_offset_from_back - back_stand_length,final_layer_width / 2 -back_stand_width / 2,layer_height + smoothing_padding - back_stand_offset_height_extension])
+    cube([back_stand_length, back_stand_width, back_stand_offset_height]);
+}
+
+module smooth_layer_with_stand() {
+     minkowski() {
+        // intersection so we don't go under z-axis
+        intersection() {
+            layer_with_stand();
+            translate([0,0,smoothing_padding])
+            cube([200,200,100]);
+        }
+        sphere(smoothing_padding);
+    }
+}
+
+module layer4() {
     difference() {
         translate([-final_layer_length / 2, -final_layer_width / 2, 0])
-        cube([final_layer_length, final_layer_width, layer_height/2]);
-        translate([0,0,layer_height /2 - feet_depth])
+        smooth_layer_with_stand();
+        translate([0,0,layer_height - feet_depth])
         feet();
     }
 }
 
-stand();
+module layer3() {
+    layer_3_length = final_layer_length + layer_height - 2 * smoothing_padding;
+    layer_3_width = final_layer_width + layer_height - 2 * smoothing_padding;
+    translate([-layer_3_length / 2, -layer_3_width / 2, 0])
+    minkowski() {
+        // intersection so we don't go under z-axis
+        intersection() {
+            cube([layer_3_length, layer_3_width, layer_height - smoothing_padding]);
+            translate([0,0,smoothing_padding])
+            cube([200,200,100]);
+        }
+        sphere(smoothing_padding);
+    }
+}
+
+module layer2() {
+    layer_2_length = final_layer_length + 2 * layer_height - 2 * smoothing_padding;
+    layer_2_width = final_layer_width + 2 * layer_height - 2 * smoothing_padding;
+    translate([-layer_2_length / 2, -layer_2_width / 2, 0])
+    minkowski() {
+        // intersection so we don't go under z-axis
+        intersection() {
+            cube([layer_2_length, layer_2_width, layer_height - smoothing_padding]);
+            translate([0,0,smoothing_padding])
+            cube([200,200,100]);
+        }
+        sphere(smoothing_padding);
+    }
+}
+
+layer_1_length = final_layer_length + 3 * layer_height - 2 * smoothing_padding;
+layer_1_width = final_layer_width + 3 * layer_height - 2 * smoothing_padding;
+
+module layer1() {
+    translate([-layer_1_length / 2, -layer_1_width / 2, 0])
+    minkowski() {
+        // intersection so we don't go under z-axis
+        intersection() {
+            cube([layer_1_length, layer_1_width, layer_height - smoothing_padding]);
+            translate([0,0,smoothing_padding])
+            cube([200,200,100]);
+        }
+        sphere(smoothing_padding);
+    }
+}
+
+module stand() {
+    translate([0,0,layer_height * 3])
+    layer4();
+    translate([0,0,layer_height * 2])
+    layer3();
+    translate([0,0,layer_height])
+    layer2();
+    layer1();
+}
+
+pyramid_offset = 5;
+pyramid_height = layer_height * 4 - pyramid_offset;
+pyramid_length = layer_1_length - 2 * pyramid_offset;
+pyramid_width = layer_1_width - 2 * pyramid_offset;
+
+module pyramid() {
+    polyhedron(
+  points=[ [pyramid_length/2,pyramid_width/2,0],[pyramid_length/2,-pyramid_width/2,0],[-pyramid_length/2,-pyramid_width/2,0],[-pyramid_length/2,pyramid_width/2,0], // the four points at base
+           [0,0,pyramid_height]  ],                                 // the apex point 
+  faces=[ [0,1,4],[1,2,4],[2,3,4],[3,0,4],              // each triangle side
+              [1,0,3],[2,1,3] ]                         // two triangles for square base
+ );
+}
+
+module hollow_stand() {
+    difference() {
+        stand();
+        pyramid();
+    }
+}
+
+color("red")
+translate([97.5,76,10])
+hollow_stand();
