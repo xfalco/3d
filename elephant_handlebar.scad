@@ -151,7 +151,9 @@ module half_ring_with_base() {
     }
 }
 
-half_ring_with_base();
+scale([0.1, 0.1, 0.1])
+elephant();
+//half_ring_with_base();
 /*
 translate([0, 0, 4.75])
 cube([100, 50, 22.5], center=true);*/
