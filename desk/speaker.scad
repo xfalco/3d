@@ -100,11 +100,12 @@ ADJUSTMENT_1 = 2.5;
 ADJUSTMENT_2 = 0.5;
 ADJUSTMENT_3 = 0.1;
 
-DISTANCE_HOLD_X = 40;
+DISTANCE_HOLD_X = 28;
 DISTANCE_HOLD_Y = 35;
+DISTANCE_HOLD_Y_LEFT = 40;
 
 
-module bracket_mount_bottom(x, width, height, angle) {
+module bracket_mount_bottom(x, width, height, angle, notch_radius = 3.5) {
     roundness = 0.2;
     width = width - 2 * roundness;
     height = height - 2 * roundness;
@@ -151,8 +152,14 @@ module bracket_mount_bottom(x, width, height, angle) {
             translate([pos_x_frame + FRAME_LENGTH, 0, 0])
             rotate(v=[0, 1, 0], a=-5)
             cube([x, width, final_height+pos_z]);
-            translate([pos_x_frame + DISTANCE_HOLD_X, -DISTANCE_HOLD_Y, pos_z_frame-ADJUSTMENT_2])
-            cube([5, DISTANCE_HOLD_Y, final_height+ADJUSTMENT_2]);
+            //translate([pos_x_frame + DISTANCE_HOLD_X, -DISTANCE_HOLD_Y, pos_z_frame-ADJUSTMENT_2])
+            //cube([8, DISTANCE_HOLD_Y, final_height+ADJUSTMENT_2]);
+            //translate([pos_x_frame + DISTANCE_HOLD_X + 4, -DISTANCE_HOLD_Y + notch_radius + 0.5, pos_z_frame-ADJUSTMENT_2+1])
+            //sphere(r = notch_radius, $fn=50);
+            translate([pos_x_frame + DISTANCE_HOLD_X, width, pos_z_frame-ADJUSTMENT_2])
+            cube([8, DISTANCE_HOLD_Y_LEFT, final_height+ADJUSTMENT_2]);
+            translate([pos_x_frame + DISTANCE_HOLD_X + 4, width + DISTANCE_HOLD_Y_LEFT - notch_radius - 0.5, pos_z_frame-ADJUSTMENT_2+1])
+            sphere(r = notch_radius, $fn=50);
         }
         sphere(r=roundness);
     }
@@ -230,7 +237,15 @@ module bracket_and_mount() {
         bracket_mount_top(MOUNT_FIRST_LENGTH, BRACKET_LENGTH, 5, 108.5);
     }
 }
-bracket_and_mount();
+
+x = MOUNT_FIRST_LENGTH;
+width = BRACKET_LENGTH;
+height = BRACKET_HEIGHT;
+angle = 108.5;
+notch_radius = 3.5;
+
+rotate(v=[0,1,0], a=180)
+bracket_and_mount_bottom();
 
 // bracket_and_mount_bottom();
 //rotate(v=[1, 0, 0], a=90)
