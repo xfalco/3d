@@ -75,7 +75,7 @@ module hook_with_hull_entry() {
 }
 
 BRACKET_HEIGHT = 8;
-BRACKET_LENGTH = 80;
+BRACKET_LENGTH = 30;
 BRACKET_WIDTH = 20;
 
 MOUNT_FIRST_LENGTH = 10.3;
@@ -84,6 +84,7 @@ MOUNT_SECOND_LENGTH = 5;
 FRAME_LENGTH = 50.2;
 
 MOUNT_TOP_LENGTH_EXTRA = 6.8;
+
 
 
 //rotate(v=[0, 1, 0], a=-90)
@@ -97,10 +98,13 @@ DISTANCE_HOLD_X = 27;
 DISTANCE_HOLD_Y = 35;
 DISTANCE_HOLD_Y_LEFT = 40;
 
+
 module bracket() {
+    roundness = 0.2;
+    half_width = BRACKET_LENGTH + DISTANCE_HOLD_Y;
     difference() {
-        translate([-15, -BRACKET_WIDTH/2, 0])
-        cube([BRACKET_LENGTH, BRACKET_WIDTH, BRACKET_HEIGHT]);
+        translate([-15, -10, 0])
+        cube([half_width, BRACKET_WIDTH, BRACKET_HEIGHT]);
         hook_entry();
     }
 }
@@ -110,18 +114,18 @@ module bracket_mount_bottom(x, width, height, angle, notch_radius = 3.5) {
     width = width - 2 * roundness;
     height = height - 2 * roundness;
     frame_width = width + DISTANCE_HOLD_Y + DISTANCE_HOLD_Y_LEFT - 2 * roundness;
-    //frame_width = width;
+    half_width = frame_width - DISTANCE_HOLD_Y_LEFT + roundness;
     translate([0, roundness, roundness])
     minkowski() {
         union() {
             // hold
             translate([0, -DISTANCE_HOLD_Y, 0])
-            cube([x, frame_width, height]);
+            cube([x, half_width, height]);
             translate([x, 0, 0])
             // first bend
             rotate(v=[0, 1, 0], a=(angle - 180))
             translate([0, -DISTANCE_HOLD_Y, 0])
-            cube([x + ADJUSTMENT_3, frame_width, height]);
+            cube([x + ADJUSTMENT_3, half_width, height]);
             // joint 
             joint_vertex_angle = 180 - angle - 45;
             joint_base_angle = 0.5 * (180 - joint_vertex_angle);
@@ -139,7 +143,7 @@ module bracket_mount_bottom(x, width, height, angle, notch_radius = 3.5) {
             translate([pos_x, 0, pos_z])
             rotate(v=[0, 1, 0], a = joint_offset_down)
             translate([0, -DISTANCE_HOLD_Y, 0])
-            cube([joint_x, frame_width, inner_joint_size + sqrt(60) * ADJUSTMENT_3]);
+            cube([joint_x, half_width, inner_joint_size + sqrt(60) * ADJUSTMENT_3]);
             // second diagonal
             pos_x_mid = (x+ADJUSTMENT_3) + cos(180-angle) * (x+ADJUSTMENT_3) - ADJUSTMENT_3;
             pos_z_mid = sin(180 -angle) * (x+ADJUSTMENT_3) + ADJUSTMENT_3;
@@ -147,7 +151,7 @@ module bracket_mount_bottom(x, width, height, angle, notch_radius = 3.5) {
             rotate(v=[0, 1, 0], a=-35)
             // not sure why the + 2.5...
             translate([0, -DISTANCE_HOLD_Y, 0])
-            cube([2 * MOUNT_SECOND_LENGTH + ADJUSTMENT_1, frame_width, height]);
+            cube([2 * MOUNT_SECOND_LENGTH + ADJUSTMENT_1, half_width, height]);
             // final frame
             pos_x_frame=pos_x_mid + cos(45) * MOUNT_SECOND_LENGTH;
             pos_z_frame = pos_z_mid + sin(45) * MOUNT_SECOND_LENGTH;
@@ -244,15 +248,15 @@ module bracket_and_mount() {
         bracket_mount_top(MOUNT_FIRST_LENGTH, BRACKET_LENGTH, 5, 108.5);
     }
 }
-        
+
 module new_mount() {
     difference() {
         bracket_and_mount_bottom();
         union() {
             translate([-39, -150, -100])
             cube([20, 300, 200]);
-            translate([0, 0, 50])
-            rotate(a=30, v=[1, 0, 0])
+            translate([0, 0, 35])
+            rotate(a=20, v=[1, 0, 0])
             translate([-150, -150, 0])
             cube([300, 300, 300]);
         }
@@ -262,9 +266,6 @@ module new_mount() {
 rotate(v=[0,1,0], a=180)
 new_mount();
 
-
 // bracket_and_mount_bottom();
 //rotate(v=[1, 0, 0], a=90)
 //bracket_mount_bottom(MOUNT_FIRST_LENGTH, 10, 5, 108.5);
-
-
