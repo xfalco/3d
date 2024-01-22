@@ -255,7 +255,7 @@ module new_mount() {
         union() {
             translate([-39, -150, -100])
             cube([20, 300, 200]);
-            translate([0, 0, 35])
+            translate([0, 0, 32.5])
             rotate(a=20, v=[1, 0, 0])
             translate([-150, -150, 0])
             cube([300, 300, 300]);
